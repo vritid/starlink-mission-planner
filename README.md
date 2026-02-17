@@ -1,6 +1,8 @@
 # Starlink Mission Planner
 
 Interactive satellite mission-planning app that fetches public TLE orbit data, visualizes the ISS ground track in real time, and predicts upcoming overhead passes for Toronto.
+
+## Demo (work in progress)
 ![Starlink Mission Planner demo](demo/demo_part1.png) 
 
 ## What it does (so far)
