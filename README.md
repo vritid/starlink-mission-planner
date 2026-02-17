@@ -1,6 +1,7 @@
 # Starlink Mission Planner
 
 Interactive satellite mission-planning app that fetches public TLE orbit data, visualizes the ISS ground track in real time, and predicts upcoming overhead passes for Toronto.
+![Starlink Mission Planner demo](<img width="509" height="419" alt="image" src="https://github.com/user-attachments/assets/ea283a6e-7cb5-4305-b0c5-7c773687968d" />) 
 
 ## What it does (so far)
 - **Live-ish orbital data ingest:** Server route fetches + caches TLEs (Starlink + stations/ISS) from CelesTrak.
@@ -19,3 +20,4 @@ Interactive satellite mission-planning app that fetches public TLE orbit data, v
 npm install
 npm i leaflet react-leaflet satellite.js
 npm i -D @types/leaflet
+
