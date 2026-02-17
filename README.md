@@ -2,6 +2,7 @@
 Starlink ground tracks + ML pass-quality scoring 
 
 ## possible structure:
+```text
 starlink-mission-planner/
   app/                       # Next.js app router
     page.tsx                 # main UI
