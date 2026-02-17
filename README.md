@@ -1,37 +1,36 @@
-# starlink-mission-planner
-Starlink ground tracks + ML pass-quality scoring 
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## possible structure:
-```text
-starlink-mission-planner/
-  app/                       # Next.js app router
-    page.tsx                 # main UI
-    api/
-      tle/route.ts           # fetch+cache TLEs (server)
-      passes/route.ts        # compute passes for observer
-      score/route.ts         # optional: score in server
-  components/
-    MapView.tsx              # Leaflet map + layers
-    TimeScrubber.tsx         # slider + play/pause
-    SatellitePicker.tsx
-    PassTable.tsx            # list of passes + score
-    ExplainPanel.tsx         # why score (feature contributions)
-  lib/
-    tle.ts                   # parsing, caching
-    orbit.ts                 # propagate -> lat/lon
-    passes.ts                # detect passes above elevation threshold
-    features.ts              # feature extraction for ML
-    model/
-      weights.json           # model params for JS inference
-      scaler.json            # optional normalization
-      infer.ts               # scorePass(features)
-  ml/
-    00_build_dataset.py
-    01_train_model.ipynb
-    02_export_model.py
-    data/
-      tle_snapshots/         # cached TLE snapshots (optional)
-      dataset.parquet
-  public/
-    demo.gif
-  README.md
+## Getting Started
+
+First, run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
