@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { extractPassFeatures, scorePassHeuristic } from "../lib/features";
 
 export type Pass = {
   start: string;
@@ -26,20 +27,18 @@ export default function PassTable({ satelliteName, observer, onPickPass }: Props
     setErr(null);
     setPasses(null);
 
-    fetch(
-      `/api/passes?sat=${encodeURIComponent(satelliteName)}&lat=${lat}&lon=${lon}&hours=24&minEl=20`,
-      { cache: "no-store" }
-    )
+    const url =
+      `/api/passes?sat=${encodeURIComponent(satelliteName)}` +
+      `&lat=${lat}&lon=${lon}&hours=24&minEl=20`;
+
+    fetch(url, { cache: "no-store" })
       .then((r) => r.json())
       .then((j) => {
-        if (j.error) setErr(String(j.error));
+        if (j.error) setErr(j.error);
         else setPasses((j.passes ?? []) as Pass[]);
       })
       .catch(() => setErr("Failed to load passes"));
   }, [satelliteName, observer?.lat, observer?.lon]);
-
-  const latLabel = (observer?.lat ?? 43.6532).toFixed(4);
-  const lonLabel = (observer?.lon ?? -79.3832).toFixed(4);
 
   if (err) {
     return (
@@ -52,7 +51,7 @@ export default function PassTable({ satelliteName, observer, onPickPass }: Props
   if (!passes) {
     return (
       <div className="mt-4 rounded-xl border border-white/10 p-4 text-sm text-white/70">
-        Loading passes…
+        Loading passes for <span className="font-mono">{satelliteName}</span>…
       </div>
     );
   }
@@ -60,10 +59,8 @@ export default function PassTable({ satelliteName, observer, onPickPass }: Props
   return (
     <div className="mt-4 rounded-xl border border-white/10 p-4">
       <div className="mb-3 text-sm font-semibold">
-        Next passes for <span className="font-mono">{satelliteName}</span> (24h, elevation ≥ 20°) —{" "}
-        <span className="text-white/70">
-          observer: {latLabel}, {lonLabel}
-        </span>
+        Next passes over Toronto (24h, elevation ≥ 20°) —{" "}
+        <span className="font-mono">{satelliteName}</span>
       </div>
 
       {passes.length === 0 ? (
@@ -77,21 +74,26 @@ export default function PassTable({ satelliteName, observer, onPickPass }: Props
                 <th className="py-2">Peak</th>
                 <th className="py-2">End</th>
                 <th className="py-2">Max Elev</th>
+                <th className="py-2">Score</th>
               </tr>
             </thead>
             <tbody>
-              {passes.slice(0, 10).map((p, idx) => (
-                <tr
-                  key={idx}
-                  className="border-t border-white/10 hover:bg-white/5 cursor-pointer"
-                  onClick={() => onPickPass?.(p)}
-                >
-                  <td className="py-2">{new Date(p.start).toLocaleString()}</td>
-                  <td className="py-2">{new Date(p.peak).toLocaleString()}</td>
-                  <td className="py-2">{new Date(p.end).toLocaleString()}</td>
-                  <td className="py-2">{p.maxElevationDeg.toFixed(1)}°</td>
-                </tr>
-              ))}
+              {passes.slice(0, 10).map((p, idx) => {
+                const score = scorePassHeuristic(extractPassFeatures(p));
+                return (
+                  <tr
+                    key={idx}
+                    className="border-t border-white/10 hover:bg-white/5 cursor-pointer"
+                    onClick={() => onPickPass?.(p)}
+                  >
+                    <td className="py-2">{new Date(p.start).toLocaleString()}</td>
+                    <td className="py-2">{new Date(p.peak).toLocaleString()}</td>
+                    <td className="py-2">{new Date(p.end).toLocaleString()}</td>
+                    <td className="py-2">{p.maxElevationDeg.toFixed(1)}°</td>
+                    <td className="py-2 font-mono">{score}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

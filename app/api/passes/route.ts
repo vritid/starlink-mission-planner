@@ -16,8 +16,8 @@ export async function GET(req: NextRequest) {
   const hours = Number(req.nextUrl.searchParams.get("hours") ?? "24");
   const minEl = Number(req.nextUrl.searchParams.get("minEl") ?? "20");
 
-  if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
-    return NextResponse.json({ error: "Invalid lat/lon" }, { status: 400 });
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || !Number.isFinite(hours) || !Number.isFinite(minEl)) {
+    return NextResponse.json({ error: "Invalid query params" }, { status: 400 });
   }
 
   const start = new Date();
