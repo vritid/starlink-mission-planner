@@ -41,9 +41,11 @@ export default function MapClient() {
       <MapView satellite={selectedSat} focusTimeIso={selectedTimeIso} />
 
       <PassTable
-        // When i click a pass, jump the map to the PEAK time
-        onPickPass={(p) => setSelectedTimeIso(p.peak)}
-      />
+  satelliteName={selectedSat?.name ?? "ISS"}
+  observer={{ lat: 43.6532, lon: -79.3832 }}
+  onPickPass={(p) => setSelectedTimeIso(p.peak)}
+/>
+
     </div>
   );
 }

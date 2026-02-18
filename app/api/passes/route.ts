@@ -8,35 +8,42 @@ type ApiTleResponse = {
 };
 
 export async function GET(req: NextRequest) {
-  const origin = req.nextUrl.origin; // e.g. http://localhost:3000
+  const origin = req.nextUrl.origin;
 
-  // Default observer: Toronto
-  const observer = { lat: 43.6532, lon: -79.3832 };
+  const satName = req.nextUrl.searchParams.get("sat") ?? "ISS";
+  const lat = Number(req.nextUrl.searchParams.get("lat") ?? "43.6532");
+  const lon = Number(req.nextUrl.searchParams.get("lon") ?? "-79.3832");
+  const hours = Number(req.nextUrl.searchParams.get("hours") ?? "24");
+  const minEl = Number(req.nextUrl.searchParams.get("minEl") ?? "20");
 
-  // Look ahead 24 hours
-  const start = new Date();
-  const end = new Date(Date.now() + 24 * 60 * 60 * 1000);
-
-  // Fetch TLEs from our own endpoint using an absolute URL
-  const res = await fetch(`${origin}/api/tle`, { cache: "no-store" });
-
-  if (!res.ok) {
-    return NextResponse.json({ error: "Failed to load TLEs" }, { status: 500 });
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+    return NextResponse.json({ error: "Invalid lat/lon" }, { status: 400 });
   }
+
+  const start = new Date();
+  const end = new Date(Date.now() + hours * 60 * 60 * 1000);
+
+  const res = await fetch(`${origin}/api/tle`, { cache: "no-store" });
+  if (!res.ok) return NextResponse.json({ error: "Failed to load TLEs" }, { status: 500 });
 
   const json = (await res.json()) as ApiTleResponse;
-  const iss = json.data.stations.find((s) => s.name.toUpperCase().includes("ISS"));
+  const all = [...json.data.stations, ...json.data.starlink];
 
-  if (!iss) {
-    return NextResponse.json({ error: "ISS not found in stations TLE list" }, { status: 404 });
+  const target =
+    all.find((s) => s.name === satName) ??
+    all.find((s) => s.name.toUpperCase().includes(satName.toUpperCase()));
+
+  if (!target) {
+    return NextResponse.json({ error: `Satellite not found: ${satName}` }, { status: 404 });
   }
 
-  const passes = computePasses(iss, observer, start, end, 10, 20);
+  const passes = computePasses(target, { lat, lon }, start, end, 10, minEl);
 
   return NextResponse.json({
-    observer,
+    observer: { lat, lon },
     window: { start: start.toISOString(), end: end.toISOString() },
-    satellite: { name: iss.name },
+    satellite: { name: target.name },
+    params: { hours, minEl },
     passes,
   });
 }
