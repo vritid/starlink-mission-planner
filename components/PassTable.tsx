@@ -2,14 +2,18 @@
 
 import { useEffect, useState } from "react";
 
-type Pass = {
+export type Pass = {
   start: string;
   peak: string;
   end: string;
   maxElevationDeg: number;
 };
 
-export default function PassTable() {
+type Props = {
+  onPickPass?: (p: Pass) => void;
+};
+
+export default function PassTable({ onPickPass }: Props) {
   const [passes, setPasses] = useState<Pass[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
@@ -18,21 +22,33 @@ export default function PassTable() {
       .then((r) => r.json())
       .then((j) => {
         if (j.error) setErr(j.error);
-        else setPasses(j.passes ?? []);
+        else setPasses((j.passes ?? []) as Pass[]);
       })
       .catch(() => setErr("Failed to load passes"));
   }, []);
 
   if (err) {
-    return <div className="mt-4 rounded-xl border border-white/10 p-4 text-sm text-red-300">{err}</div>;
+    return (
+      <div className="mt-4 rounded-xl border border-white/10 p-4 text-sm text-red-300">
+        {err}
+      </div>
+    );
   }
+
   if (!passes) {
-    return <div className="mt-4 rounded-xl border border-white/10 p-4 text-sm text-white/70">Loading passes…</div>;
+    return (
+      <div className="mt-4 rounded-xl border border-white/10 p-4 text-sm text-white/70">
+        Loading passes…
+      </div>
+    );
   }
 
   return (
     <div className="mt-4 rounded-xl border border-white/10 p-4">
-      <div className="mb-3 text-sm font-semibold">Next ISS passes over Toronto (24h, elevation ≥ 20°)</div>
+      <div className="mb-3 text-sm font-semibold">
+        Next ISS passes over Toronto (24h, elevation ≥ 20°)
+      </div>
+
       {passes.length === 0 ? (
         <div className="text-sm text-white/70">No passes found in the next 24 hours.</div>
       ) : (
@@ -48,7 +64,11 @@ export default function PassTable() {
             </thead>
             <tbody>
               {passes.slice(0, 10).map((p, idx) => (
-                <tr key={idx} className="border-t border-white/10">
+                <tr
+                  key={idx}
+                  className="border-t border-white/10 hover:bg-white/5 cursor-pointer"
+                  onClick={() => onPickPass?.(p)}
+                >
                   <td className="py-2">{new Date(p.start).toLocaleString()}</td>
                   <td className="py-2">{new Date(p.peak).toLocaleString()}</td>
                   <td className="py-2">{new Date(p.end).toLocaleString()}</td>
@@ -59,6 +79,10 @@ export default function PassTable() {
           </table>
         </div>
       )}
+
+      <div className="mt-2 text-xs text-white/50">
+        Tip: click a row to jump the map focus time to that pass.
+      </div>
     </div>
   );
 }

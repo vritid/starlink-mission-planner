@@ -1,5 +1,4 @@
 import MapClient from "../components/MapClient";
-import PassTable from "../components/PassTable";
 
 export default function Page() {
   return (
@@ -12,7 +11,7 @@ export default function Page() {
       </div>
 
       <MapClient />
-      <PassTable />
+      
 
       <div className="mt-4 text-xs text-white/60">
         dev note: quick check: open <span className="font-mono">/api/tle</span> to see fetched TLE data.
